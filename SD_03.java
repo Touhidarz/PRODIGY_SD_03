@@ -1,13 +1,17 @@
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SD_03 {
     private static ArrayList<Contact> contacts = new ArrayList<Contact>();
     private static Scanner scanner = new Scanner(System.in);
+    private static String fileName = "contacts.txt";
 
     public static void main(String[] args) {
         boolean quit = false;
         int choice = 0;
+
+        loadContacts();
 
         while (!quit) {
             System.out.println("Enter your choice:");
@@ -40,6 +44,8 @@ public class SD_03 {
                     System.out.println("Invalid choice");
             }
         }
+
+        saveContacts();
     }
 
     private static void addContact() {
@@ -108,9 +114,37 @@ public class SD_03 {
 
         contacts.remove(index - 1);
     }
+
+    private static void loadContacts() {
+        try {
+            File file = new File(fileName);
+
+            if (file.exists()) {
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                contacts = (ArrayList<Contact>) ois.readObject();
+                ois.close();
+                fis.close();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error loading contacts: " + e.getMessage());
+        }
+    }
+
+    private static void saveContacts() {
+        try {
+            FileOutputStream fos = new FileOutputStream(fileName);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(contacts);
+            oos.close();
+            fos.close();
+        } catch (IOException e) {
+            System.out.println("Error saving contacts: " + e.getMessage());
+        }
+    }
 }
 
-class Contact {
+class Contact implements Serializable {
     private String name;
     private String phoneNumber;
     private String emailAddress;
